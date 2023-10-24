@@ -31,7 +31,7 @@ from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
 try:
     #  https://storage.googleapis.com/download/storage/v1/b/https://console.firebase.google.com/project/music-app-ffa78/storage/music-app-ffa78.appspot.com/files/o/songs%2FCloser.mp3?alt=media
-    cred = credentials.Certificate("./music-app-ffa78-firebase-adminsdk-kmam4-ad67931c2b.json")
+    cred = credentials.Certificate("./music-app-ffa78-firebase-adminsdk-qeepk-25d73c2a31.json")
     firebase_admin.initialize_app(cred,{'storageBucket' : 'music-app-ffa78.appspot.com'})
     print("Database connected successfully")
 
@@ -105,13 +105,13 @@ class App(customtkinter.CTk):
         self.load_picture = customtkinter.CTkImage(light_image=Image.open("./assets/download.png"),size=(32, 32))
 
         #create control buttons
-        self.forward_button = customtkinter.CTkButton(self.sidebar_frame, image=self.skip_f_picture, text="" , fg_color="transparent", border_width=0, text_color=("gray10", "#DCE4EE"))
+        self.forward_button = customtkinter.CTkButton(self.sidebar_frame, image=self.skip_f_picture, text="" , fg_color="transparent", border_width=0, text_color=("gray10", "#DCE4EE"), command=self.next)
         self.forward_button.grid(row=5, column=0, padx=(20, 20), pady=(10), sticky="nsew")
 
         self.play_pause_btn = customtkinter.CTkButton(master=self.sidebar_frame, image=self.load_picture, text="" , fg_color="transparent", border_width=0, text_color=("gray10", "#DCE4EE"), command=self.download_files)
         self.play_pause_btn .grid(row=6, column=0, padx=(20, 10), pady=(10, 10), sticky="nsew")   
         
-        self.previous_button = customtkinter.CTkButton(self.sidebar_frame, image=self.skip_p_picture, text="" , fg_color="transparent", border_width=0, text_color=("gray10", "#DCE4EE"))
+        self.previous_button = customtkinter.CTkButton(self.sidebar_frame, image=self.skip_p_picture, text="" , fg_color="transparent", border_width=0, text_color=("gray10", "#DCE4EE"), command=self.previous)
         self.previous_button.grid(row=7, column=0, padx=(20, 20), pady=(10), sticky="nsew")
 
         #scaling Menu
@@ -123,11 +123,11 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=9, column=0, padx=20, pady=(10, 20))
 
         # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="Search Bar")
-        self.entry.grid(row=0, column=1, padx=(20, 0), pady=(20, 20), sticky="nsew")
+        # self.entry = customtkinter.CTkEntry(self, placeholder_text="Search Bar")
+        # self.entry.grid(row=0, column=1, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
-        self.main_button_1 = customtkinter.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), command=self.read)
-        self.main_button_1.grid(row=0, column=2, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        # self.main_button_1 = customtkinter.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), command=self.read)
+        # self.main_button_1.grid(row=0, column=2, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
         
       
@@ -158,7 +158,7 @@ class App(customtkinter.CTk):
 
     def download_files(self):
         self.read('Closer')
-        credentials = service_account.Credentials.from_service_account_file("./music-app-ffa78-firebase-adminsdk-kmam4-ad67931c2b.json")
+        credentials = service_account.Credentials.from_service_account_file("./music-app-ffa78-firebase-adminsdk-qeepk-25d73c2a31.json")
         try:
             if not os.path.exists(self.song_url):
                 storage.Client(credentials=credentials).bucket(firebase_admin.storage.bucket().name).blob('songs/Closer.mp3').download_to_filename(self.song_url)
@@ -220,6 +220,12 @@ class App(customtkinter.CTk):
            
             mixer.music.pause()
             
+    def next(self):
+        print ("Next")
+
+    def previous(self): 
+        print("Previous")
+
     def changeVol(self,args):
         volRange = volume.GetVolumeRange()
         minVol = volRange[0]
@@ -233,3 +239,5 @@ class App(customtkinter.CTk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
+#kivy
