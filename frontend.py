@@ -68,6 +68,7 @@ class App(customtkinter.CTk):
     paused = False
     song_loaded = False
     song_paused = False
+    songlength = 0
 
     # global paused, song_loaded, song_paused
 
@@ -145,14 +146,14 @@ class App(customtkinter.CTk):
         self.album_cover_button.grid(row=1, rowspan=2, column=1, padx=(20, 20), pady=(20, 20), sticky="ew")
 
         
-        self.slider_1 = customtkinter.CTkSlider(self.slider_progressbar_frame, from_=0, to=1)
+        self.slider_1 = customtkinter.CTkSlider(self.slider_progressbar_frame, from_=0, to=1, command = self.playback)
         self.slider_1.grid(row=4, column=0, padx=(20, 10), pady=(10, 10), sticky="nsew")   
         
         self.slider_2 = customtkinter.CTkSlider(self.slider_progressbar_frame, from_=0, to=1, orientation="vertical", command=self.changeVol)
         self.slider_2.grid(row=0, column=1, rowspan=2, padx=(10, 10), pady=(10, 10), sticky="ns")
 
-
-        
+        self.slider_2.set(0.405)
+        self.slider_1.set(0)
 
         
 
@@ -205,6 +206,8 @@ class App(customtkinter.CTk):
             print(" playing...")
             self.song_loaded = True
             mixer.music.load(self.song_url)
+            # mixer.music.set_pos(0.0) 
+            self.song_length = 245
             mixer.music.play()
         
         if self.paused:                
@@ -235,6 +238,18 @@ class App(customtkinter.CTk):
         currentVol=(1 - value) * minVol + value * maxVol
         
         volume.SetMasterVolumeLevel(currentVol, None)
+
+    def playback(self,args):
+        song_pos = mixer.music.get_pos()
+        song_pos = (song_pos / 1000 ) % 60
+        print('The  {} seconds.'.format(song_pos))
+        value=self.slider_1.get()
+        print(value)
+        currentpos = value * song_pos
+
+        print('The song is currently at {} seconds.'.format(currentpos))
+        mixer.music.set_pos(currentpos)
+
 
 if __name__ == "__main__":
     app = App()
