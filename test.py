@@ -76,15 +76,15 @@ try:
 except Exception as e:
     print ("Error fetching data: ", e)
 
-
+num=int(input("Enter the song number: "))
 
 #Downloading songs from suvan
 try:
     # set variable destination to the music folder under the root folder ./music/
-    songdestination = songurl[0]
-    
+    songdestination = songurl[num]
+    print(Songnames[num])
     with open(songdestination, 'wb+') as f:
-        download_song = supabase.storage.from_('songs').download(Songnames[0])
+        download_song = supabase.storage.from_('songs').download(Songnames[num])
         f.write(download_song)
 
 except Exception as e:
@@ -94,10 +94,10 @@ except Exception as e:
 #Downloading images from suvan
 try:
 
-    imgdestination = imgurl[0]
-    print(Imagenames[0])
+    imgdestination = imgurl[num]
+    print(Imagenames[num])
     with open(imgdestination, 'wb+') as f:
-        download_image = supabase.storage.from_('images').download(Imagenames[0])
+        download_image = supabase.storage.from_('images').download(Imagenames[num])
         f.write(download_image)
 
 except Exception as e:
