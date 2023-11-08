@@ -27,25 +27,141 @@ from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
 
+from supabase import create_client, Client
+
+# try:
+#     #  https://storage.googleapis.com/download/storage/v1/b/https://console.firebase.google.com/project/music-app-ffa78/storage/music-app-ffa78.appspot.com/files/o/songs%2FCloser.mp3?alt=media
+#     cred = credentials.Certificate("./music-app-ffa78-firebase-adminsdk-qeepk-25d73c2a31.json")
+#     firebase_admin.initialize_app(cred,{'storageBucket' : 'music-app-ffa78.appspot.com'})
+#     print("Database connected successfully")
+
+# except:
+#     print("Error in connecting to database")
+
+url: str ="https://argjkahpbsjcwfwisulc.supabase.co"
+key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyZ2prYWhwYnNqY3dmd2lzdWxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTYwNTkyNzQsImV4cCI6MjAxMTYzNTI3NH0.mull5uIl1E4EjNzrvK-agYtwfSETUfiIWnj3SCIA8Os"
 
 
 try:
-    #  https://storage.googleapis.com/download/storage/v1/b/https://console.firebase.google.com/project/music-app-ffa78/storage/music-app-ffa78.appspot.com/files/o/songs%2FCloser.mp3?alt=media
-    cred = credentials.Certificate("./music-app-ffa78-firebase-adminsdk-qeepk-25d73c2a31.json")
-    firebase_admin.initialize_app(cred,{'storageBucket' : 'music-app-ffa78.appspot.com'})
-    print("Database connected successfully")
-
-except:
-    print("Error in connecting to database")
+    supabase: Client = create_client(url, key)
+    print ("Client created successfully")
+except Exception as e:
+    print ("Error creating client: ", e)
 
 mixer.init()
 
+songname=[]
+
+try:
+    response = supabase.table('SongList').select("Song Name").execute().dict()
+    for i in response['data']:
+        print(i['Song Name'])
+        songname.append(i['Song Name'])
+   
+    print ("Data fetched successfully")
+except Exception as e:
+    print ("Error fetching data: ", e)
+
+Songnames=[]
+Imagenames=[]
+
+try:
+    res_songs = supabase.storage.from_('songs').list()
+    res_imgs = supabase.storage.from_('images').list()
+    print("listing files")
+     
+    for songs in res_songs:
+        print (songs['name'])
+        Songnames.append(songs['name'])
+    
+    for images in res_imgs:
+        print (images['name'])
+        Imagenames.append(images['name'])
+       
+
+except Exception as e:
+    print ("Error fetching data: ", e)
+
+
+songurl=[]
+
+#getting song path for local storage
+try:
+    response = supabase.table('SongList').select("song_url").execute().dict()
+    for i in response['data']:
+        print(i['song_url'])
+        songurl.append(i['song_url'].rstrip('\r\n'))
+   
+    print ("Data fetched successfully")
+except Exception as e:
+    print ("Error fetching data: ", e)
+
+#getting image path for local storage
+imgurl = []
+try:
+    response = supabase.table('SongList').select("img_url").execute().dict()
+    for i in response['data']:
+        print(i['img_url'])
+        imgurl.append(i['img_url'].rstrip('\r\n'))
+   
+    print ("Data fetched successfully")
+except Exception as e:
+    print ("Error fetching data: ", e)
+
+artist = []
+try:
+    response = supabase.table('SongList').select("Artist").execute().dict()
+    for i in response['data']:
+        print(i['Artist'])
+        artist.append(i['Artist'].rstrip('\r\n'))
+   
+    print ("Data fetched successfully")
+except Exception as e:
+    print ("Error fetching data: ", e)
+
+Name = []
+try:
+    response = supabase.table('SongList').select("Song Name").execute().dict()
+    for i in response['data']:
+        print(i['Song Name'])
+        Name.append(i['Song Name'].rstrip('\r\n'))
+   
+    print ("Data fetched successfully")
+except Exception as e:
+    print ("Error fetching data: ", e)
+
+# num=int(input("Enter the song number: "))
+
+#Downloading songs from suvan
+# try:
+#     # set variable destination to the music folder under the root folder ./music/
+#     songdestination = songurl[num]
+#     print(Songnames[num])
+#     with open(songdestination, 'wb+') as f:
+#         download_song = supabase.storage.from_('songs').download(Songnames[num])
+#         f.write(download_song)
+
+# except Exception as e:
+#     print ("Error fetching data: ", e)
+    
+
+#Downloading images from suvan
+# try:
+
+#     imgdestination = imgurl[num]
+#     print(Imagenames[num])
+#     with open(imgdestination, 'wb+') as f:
+#         download_image = supabase.storage.from_('images').download(Imagenames[num])
+#         f.write(download_image)
+
+# except Exception as e:
+#     print ("Error fetching data: ", e)
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("purple")  # Themes: "blue" (standard), "green", "dark-blue"
 
-db=firestore.client()
-collection = db.collection('songlist')
+# db=firestore.client()
+# collection = db.collection('songlist')
 
 devices = AudioUtilities.GetSpeakers()
 interface = devices.Activate(
@@ -58,17 +174,20 @@ volume.GetVolumeRange()
 
 
 
+
+
 class App(customtkinter.CTk):
 
     name=""
     artist=""
     song_url=""
     img_url=""
-
+    currentsong=0
     paused = False
     song_loaded = False
     song_paused = False
     songlength = 0
+    songdict={}
 
     # global paused, song_loaded, song_paused
 
@@ -158,17 +277,15 @@ class App(customtkinter.CTk):
         
 
     def download_files(self):
-        self.read('Closer')
-        credentials = service_account.Credentials.from_service_account_file("./music-app-ffa78-firebase-adminsdk-qeepk-25d73c2a31.json")
+        # self.read('Closer')
+        # credentials = service_account.Credentials.from_service_account_file("./music-app-ffa78-firebase-adminsdk-qeepk-25d73c2a31.json")
         try:
-            if not os.path.exists(self.song_url):
-                storage.Client(credentials=credentials).bucket(firebase_admin.storage.bucket().name).blob('songs/Closer.mp3').download_to_filename(self.song_url)
-                print("done downloading song")
-            if not os.path.exists(self.img_url):
-                storage.Client(credentials=credentials).bucket(firebase_admin.storage.bucket().name).blob('images/closer.jpg').download_to_filename(self.img_url)
-                print("done downloading all pics")
+            for i in range(len(Songnames)):
+                self.songdict[i]=[ songurl[i],imgurl[i],artist[i],Name[i] ]
+
+            self.read()
         except Exception as e:
-            print(e)
+            print(f"{0} coolbro",e)
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -180,20 +297,19 @@ class App(customtkinter.CTk):
     def sidebar_button_event(self):
         print("sidebar_button click")
         
-    def read(self,songname):
-        song_metadata = collection.document(songname).get().to_dict()
-        # print(song_metadata)
-        self.name = song_metadata['Name']
-        print(self.name)
-        self.artist = song_metadata['Artist']
-        print(self.artist)
+    def read(self):
+        # song_metadata = collection.document(songname).get().to_dict()
+        # # print(song_metadata)
 
-        self.song_name_label.configure(text=self.name)
-        self.song_artist_label.configure(text=self.artist)
-
-        self.song_url = song_metadata['song_url']
-        self.img_url = song_metadata['img_url']
+        self.name = self.songdict[self.currentsong][3]
+        # print(self.name)
+        self.artist = self.songdict[self.currentsong][2]
+        # print(self.artist)
         
+        # set imgurl to imgurl value from songdict of the index currentsong
+        self.img_url = self.songdict[self.currentsong][1]
+        self.song_url = self.songdict[self.currentsong][0]
+        print(f"{0}\n{1}\n{2}\n{3}\n",self.song_url,self.img_url,self.artist,self.name)
         self.play()
 
     def play(self):
@@ -203,6 +319,10 @@ class App(customtkinter.CTk):
             print("changing image...")
             self.cover_image = customtkinter.CTkImage(light_image=Image.open(self.img_url),size=(300, 300))
             self.album_cover_button.configure(image=self.cover_image)
+            print('changing name...')
+            self.song_name_label.configure(text=self.name)
+            print('changing artist...')
+            self.song_artist_label.configure(text=self.artist)
             print(" playing...")
             self.song_loaded = True
             mixer.music.load(self.song_url)
@@ -225,9 +345,25 @@ class App(customtkinter.CTk):
             
     def next(self):
         print ("Next")
+        # mixer.music.queue()
+        mixer.music.stop()
+        self.song_loaded = False
+        self.currentsong+=1
+        self.read()
+        self.play()
 
     def previous(self): 
-        print("Previous")
+        print ("Previous")
+        # mixer.music.queue()
+        mixer.music.stop()
+        self.song_loaded = False
+        if (self.currentsong-1) < 0:
+            self.currentsong=0
+
+        else:
+            self.currentsong-=1
+            self.read()
+            self.play()
 
     def changeVol(self,args):
         volRange = volume.GetVolumeRange()

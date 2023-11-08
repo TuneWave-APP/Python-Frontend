@@ -1,5 +1,6 @@
 import os
 from supabase import create_client, Client
+from pygame import mixer
 
 url: str ="https://argjkahpbsjcwfwisulc.supabase.co"
 key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFyZ2prYWhwYnNqY3dmd2lzdWxjIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTYwNTkyNzQsImV4cCI6MjAxMTYzNTI3NH0.mull5uIl1E4EjNzrvK-agYtwfSETUfiIWnj3SCIA8Os"
@@ -102,3 +103,16 @@ try:
 
 except Exception as e:
     print ("Error fetching data: ", e)
+
+
+# making a dictionary of s.no as the key and songpath and imagepath as values
+songdict={}
+for i in range(len(Songnames)):
+    songdict[i]=[songurl[i],imgurl[i]]
+
+print(songdict)
+#print only the songurl
+print(songdict[0][1])
+
+
+
