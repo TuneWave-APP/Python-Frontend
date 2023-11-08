@@ -280,12 +280,12 @@ class App(customtkinter.CTk):
         # self.read('Closer')
         # credentials = service_account.Credentials.from_service_account_file("./music-app-ffa78-firebase-adminsdk-qeepk-25d73c2a31.json")
         try:
-            for i in range(len(Songnames)):
+            for i in range(int(len(Songnames))):
                 self.songdict[i]=[ songurl[i],imgurl[i],artist[i],Name[i] ]
 
             self.read()
         except Exception as e:
-            print(f"{0} coolbro",e)
+            print(e)
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -324,11 +324,13 @@ class App(customtkinter.CTk):
             print('changing artist...')
             self.song_artist_label.configure(text=self.artist)
             print(" playing...")
+            self.play_pause_btn.configure(image=self.pause_picture)
             self.song_loaded = True
             mixer.music.load(self.song_url)
             # mixer.music.set_pos(0.0) 
             self.song_length = 245
             mixer.music.play()
+            mixer.music.set_endevent(self.next)
         
         if self.paused:                
                 self.paused = False
