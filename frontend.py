@@ -330,7 +330,7 @@ class App(customtkinter.CTk):
             # mixer.music.set_pos(0.0) 
             self.song_length = 245
             mixer.music.play()
-            mixer.music.set_endevent(self.next)
+            # mixer.music.set_endevent(self.next)
         
         if self.paused:                
                 self.paused = False
